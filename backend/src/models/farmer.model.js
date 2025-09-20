@@ -23,8 +23,8 @@ const farmerSchema = new Schema(
       district: { type: String, required: true },
       state: { type: String, required: true },
       geo: {
-        lat: { type: Number, required: true },
-        lon: { type: Number, required: true },
+        lat: { type: Number },
+        lon: { type: Number },
       },
     },
     farmType: {

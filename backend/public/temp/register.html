@@ -1,0 +1,73 @@
+<!-- public/register.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Register</title>
+  </head>
+  <body>
+    <h3>Farmer Registration</h3>
+    <form id="regForm">
+      <input id="phone" name="phone" readonly /><br />
+      <input id="name" name="name" placeholder="Full name" required /><br />
+      <input id="village" name="village" placeholder="Village" required /><br />
+      <input
+        id="district"
+        name="district"
+        placeholder="District"
+        required
+      /><br />
+      <input id="state" name="state" placeholder="State" required /><br />
+      <select id="farmType" name="farmType">
+        <option>Smallholder</option>
+        <option>Cooperative</option>
+        <option>Commercial</option></select
+      ><br />
+      <input id="crops" name="crops" placeholder="Ashwagandha,Tulsi" /><br />
+      <button type="submit">Submit</button>
+    </form>
+
+    <script>
+      const params = new URLSearchParams(location.search);
+      const token = params.get("token");
+      if (!token) {
+        alert("Missing token");
+        throw new Error("missing token");
+      }
+      fetch(`/api/v1/auth/registration-session/${token}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.phone) document.getElementById("phone").value = data.phone;
+        })
+        .catch((e) => {
+          alert("Invalid/expired link");
+          console.error(e);
+        });
+
+      document
+        .getElementById("regForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const payload = {
+            token,
+            phone: document.getElementById("phone").value,
+            name: document.getElementById("name").value,
+            village: document.getElementById("village").value,
+            district: document.getElementById("district").value,
+            state: document.getElementById("state").value,
+            farmType: document.getElementById("farmType").value,
+            crops: document.getElementById("crops").value,
+          };
+          const res = await fetch("/api/v1/auth/farmers/register", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const json = await res.json();
+          if (res.ok) alert("Registered! ID: " + json.farmerID);
+          else alert("Error: " + (json.error || JSON.stringify(json)));
+        });
+    </script>
+  </body>
+</html>
